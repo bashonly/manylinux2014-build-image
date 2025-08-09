@@ -149,6 +149,10 @@ RUN manylinux-entrypoint /build_scripts/build-cpython.sh hugo@python.org https:/
 FROM build_cpython AS build_cpython314_nogil
 RUN manylinux-entrypoint /build_scripts/build-cpython.sh hugo@python.org https://github.com/login/oauth 3.14.0rc1 nogil
 
+FROM build_cpython AS shared_cpython313
+COPY build_scripts/build-shared-cpython.sh /build_scripts/
+RUN manylinux-entrypoint /build_scripts/build-shared-cpython.sh thomas@python.org https://accounts.google.com 3.13.6
+
 FROM runtime_base
 COPY --from=build_tcl_tk /manylinux-rootfs /
 COPY --from=build_mpdecimal /manylinux-rootfs /
@@ -168,6 +172,16 @@ RUN --mount=type=bind,target=/build_cpython38,from=build_cpython38 \
     cp -rf /build_cpython*/opt/_internal/* /opt/_internal/ && \
     manylinux-entrypoint /opt/_internal/build_scripts/finalize.sh \
       pp310-pypy310_pp73 pp311-pypy311_pp73
+RUN --mount=type=bind,target=/shared_cpython313,from=shared_cpython313 \
+    mkdir -p /opt/_internal/openssl-3.5 && \
+    cp -rf /shared_cpython313/opt/_internal/openssl-3.5/* /opt/_internal/openssl-3.5/ && \
+    mkdir -p /opt/shared-cpython && \
+    cp -rf /shared_cpython313/opt/shared-cpython/* /opt/shared-cpython/ && \
+    mkdir -p /usr/local/bin && \
+    rm -f /usr/local/bin/python* && \
+    ln -s /opt/shared-cpython/bin/python3.13 /usr/local/bin/python && \
+    ln -s /opt/shared-cpython/bin/python3.13 /usr/local/bin/python3 && \
+    ln -s /opt/shared-cpython/bin/python3.13 /usr/local/bin/python3.13
 
 COPY tests /opt/_internal/tests/
 
