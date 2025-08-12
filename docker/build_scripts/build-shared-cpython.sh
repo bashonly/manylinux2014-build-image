@@ -82,3 +82,9 @@ make > /dev/null
 make install > /dev/null
 popd
 rm -rf "Python-${CPYTHON_VERSION}" "Python-${CPYTHON_VERSION}.tar.xz" "Python-${CPYTHON_VERSION}.tar.xz.sigstore"
+
+# We do not need precompiled .pyc and .pyo files.
+clean_pyc "${PREFIX}"
+
+# Strip ELF files found in ${PREFIX}
+strip_ "${PREFIX}"

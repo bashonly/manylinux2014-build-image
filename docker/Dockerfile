@@ -150,7 +150,12 @@ FROM build_cpython AS build_cpython314_nogil
 RUN manylinux-entrypoint /build_scripts/build-cpython.sh hugo@python.org https://github.com/login/oauth 3.14.0rc1 nogil
 
 FROM build_cpython AS shared_cpython313
+COPY build_scripts/build-openssl-for-shared-cpython.sh /build_scripts/
 COPY build_scripts/build-shared-cpython.sh /build_scripts/
+RUN export OPENSSL_ROOT=openssl-3.5.2 && \
+    export OPENSSL_HASH=c53a47e5e441c930c3928cf7bf6fb00e5d129b630e0aa873b08258656e7345ec && \
+    export OPENSSL_DOWNLOAD_URL=https://github.com/openssl/openssl/releases/download/${OPENSSL_ROOT} && \
+    manylinux-entrypoint /build_scripts/build-openssl-for-shared-cpython.sh
 RUN manylinux-entrypoint /build_scripts/build-shared-cpython.sh thomas@python.org https://accounts.google.com 3.13.6
 
 FROM runtime_base
