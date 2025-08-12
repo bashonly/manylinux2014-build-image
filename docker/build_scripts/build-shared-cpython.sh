@@ -17,7 +17,7 @@ CERT_OIDC_ISSUER=$2
 CPYTHON_VERSION=$3
 CPYTHON_DOWNLOAD_URL=https://www.python.org/ftp/python
 
-PREFIX="/opt/shared-cpython"
+PREFIX="/opt/shared-cpython-$(echo "${CPYTHON_VERSION}" | awk -F "." '{printf "%d.%d", $1, $2}')"
 OPENSSL_PREFIX="/opt/_internal/openssl-3.5"
 
 function pyver_dist_dir {
